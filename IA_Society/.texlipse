@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Mon Nov 04 00:26:06 JST 2013
+markTmpDer=true
+builderNum=4
+outputDir=
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=document.tex
+outputFile=IA_20131219_ShogoFujii.pdf
+langSpell=en
+markDer=true
+srcDir=
