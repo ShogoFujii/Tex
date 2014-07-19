@@ -1,4 +1,4 @@
-This is pTeXk, Version 3.141592-p3.1.10 (utf8.euc) (Web2C 7.5.4) (format=platex-euc 2013.4.8)  5 DEC 2013 17:09
+This is pTeXk, Version 3.141592-p3.1.10 (utf8.euc) (Web2C 7.5.4) (format=platex-euc 2013.4.8)  19 JUL 2014 22:24
  Source specials enabled.
 **document.tex -shell-escape thesis
 (./document.tex
@@ -421,10 +421,7 @@ LaTeX Font Info:    Font shape `JT1/mc/m/n' will be
 (Font)              scaled to size 8.64899pt on input line 218.
 LaTeX Font Info:    Font shape `JY1/mc/m/n' will be
 (Font)              scaled to size 8.64899pt on input line 218.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
+ [3]
 LaTeX Font Info:    Font shape `JT1/mc/m/it' in size <10> not available
 (Font)              Font shape `JT1/mc/m/n' tried instead on input line 255.
 LaTeX Font Info:    Font shape `JT1/mc/m/n' will be
@@ -433,15 +430,8 @@ LaTeX Font Info:    Font shape `JY1/mc/m/it' in size <10> not available
 (Font)              Font shape `JY1/mc/m/n' tried instead on input line 255.
 LaTeX Font Info:    Font shape `JY1/mc/m/n' will be
 (Font)              scaled to size 9.60999pt on input line 255.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [3]
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
 File: ./img/part_aggr.pdf Graphic file (type pdf)
-
-<./img/part_aggr.pdf>
+ <./img/part_aggr.pdf>
 Underfull \vbox (badness 1968) has occurred while \output is active []
 
  [4]
@@ -475,12 +465,6 @@ File: ./img/loss.pdf Graphic file (type pdf)
  <./img/loss.pdf> [6]
 File: ./img/cdf_rep.pdf Graphic file (type pdf)
  <./img/cdf_rep.pdf>
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
 File: ./img/pure_query.pdf Graphic file (type pdf)
 
 <./img/pure_query.pdf>
@@ -586,4 +570,4 @@ Here is how much of TeX's memory you used:
  571 hyphenation exceptions out of 8191
  27i,11n,33p,1416b,780s stack positions out of 5000i,500n,6000p,200000b,5000s
 
-Output written on document.dvi (8 pages, 52572 bytes).
+Output written on document.dvi (8 pages, 52684 bytes).
