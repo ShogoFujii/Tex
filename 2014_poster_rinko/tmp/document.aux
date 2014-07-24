@@ -2,7 +2,7 @@
 \citation{IBM_rep}
 \citation{presto}
 \citation{amazon}
-\citation{mapreduce,dryad,fattree,bcube,vl2,dctcp,improving,detail}
+\citation{mapreduce,dryad,fattree,bcube,vl2,dctcp,improving,detail,p_fab}
 \citation{fattree}
 \citation{mapreduce}
 \citation{dryad}
@@ -12,6 +12,7 @@
 \newlabel{sec:intro}{{1}{1}}
 \citation{improving}
 \citation{dctcp}
+\citation{p_fab}
 \citation{improving}
 \citation{detail}
 \citation{click}
@@ -26,63 +27,61 @@
 \citation{fattree,bcube,vl2}
 \citation{fattree}
 \citation{improving}
+\citation{dctcp}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Multipath TCP}{3}}
 \newlabel{alpha}{{1}{3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}FatTreeトポロジーとMPTCPによるデータセンターモデル}{3}}
 \newlabel{sec:fattree}{{3.2}{3}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}トポロジー}{3}}
 \newlabel{subsec:topology}{{3.2.1}{3}}
-\citation{dctcp}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}データセンターにおけるトラフィックシナリオ}{3}}
+\newlabel{sec:traffic_scenario}{{3.3}{3}}
 \citation{dctcp}
 \citation{traffic}
-\citation{improving}
+\citation{flexible}
+\citation{synchro}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Fattree topology}}{4}}
 \newlabel{fig:fattree}{{1}{4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}データセンターにおけるトラフィックシナリオ}{4}}
-\newlabel{sec:traffic_scenario}{{3.3}{4}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Partition-aggregate model on distribution system}}{4}}
 \newlabel{fig:part_aggr}{{2}{4}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}再現シミュレーション実験}{4}}
-\newlabel{sec:reproduction}{{4}{4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}再現シミュレーション実験環境}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}スイッチ}{4}}
+\newlabel{sec:switch}{{3.4}{4}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}Incast}{4}}
+\newlabel{subsec:incast}{{3.4.1}{4}}
+\citation{improving}
+\citation{mptcp_ana}
 \citation{ns3}
 \citation{mptcp_linux}
 \citation{rtt}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Testbed on network simulation}}{5}}
-\newlabel{table:testbed}{{1}{5}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.2}Queue buildup}{5}}
+\newlabel{subsec:queue}{{3.4.2}{5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Two ways in which flows interact on a multi-ported switch resulting in performance problems.}}{5}}
+\newlabel{fig:impair}{{3}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}検証実験}{5}}
+\newlabel{sec:verification}{{4}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}再現シミュレーション実験環境}{5}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Testbed on verificating simulation}}{5}}
+\newlabel{table:testbed_ver}{{1}{5}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}設定パラメータに対する有効性の検証}{5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Network topology on reproducing simulation}}{5}}
-\newlabel{fig:fattree_rep}{{3}{5}}
-\newlabel{cong}{{2}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}再現結果}{5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The result of the reproduction experiment}}{5}}
-\newlabel{fig:short_flow_rep}{{4}{5}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Average flow completion time and stdev on reproduction experiment}}{5}}
-\newlabel{table:short_flow_rep}{{2}{5}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Flow pattern classified by completion time}}{6}}
-\newlabel{table:flow_pattern}{{3}{6}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}考察}{6}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}パケットロスが発生しないフローパターン}{6}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}パケットロスが生じたフローパターン}{6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Comparison between Full window and Intensive flow}}{6}}
-\newlabel{fig:full_intensive}{{5}{6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Comparison between Delay with loss and Extreme delay}}{6}}
-\newlabel{fig:delay_loss}{{6}{6}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3}TCP v.s. MPTCP}{7}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces CDF of flow completion time on reproduction experiment}}{7}}
-\newlabel{fig:cdf}{{7}{7}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}評価実験と考察}{7}}
-\newlabel{sec:evaluation}{{5}{7}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}想定環境}{7}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Metric of each traffic patern}}{7}}
-\newlabel{metric}{{4}{7}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}シミュレーション結果}{7}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}Query traffic}{7}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Flow completion time of Query traffic without Background traffic}}{7}}
-\newlabel{fig:pure_query}{{8}{7}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Flow completion time of Query traffic with Background traffic}}{7}}
-\newlabel{fig:mix_query}{{9}{7}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}Short message traffic}{7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Network topology on verificating simulation}}{6}}
+\newlabel{fig:fattree_ver}{{4}{6}}
+\newlabel{cong}{{2}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}検証結果}{6}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}リンク利用率の影響}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Flow completion time and link utilization for 70kb benchmark traffic}}{6}}
+\newlabel{fig:improve}{{5}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces 95 percentile FCT for 70kb flow}}{6}}
+\newlabel{fig:95percentile}{{6}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Inter-flow with percentile for 70kb benchmark traffic}}{6}}
+\newlabel{fig:inter-flow}{{7}{6}}
+\citation{improving}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Inter-flow with/without bankground traffic for 70kb benchmark traffic}}{7}}
+\newlabel{fig:inter-packet}{{8}{7}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}フロー発生間隔の影響}{7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}考察}{7}}
+\newlabel{sec:analysis}{{4.3}{7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Detail receiving 70kb flow}}{7}}
+\newlabel{fig:detail}{{9}{7}}
 \citation{improving}
 \bibcite{IBM_rep}{1}
 \bibcite{amazon}{2}
@@ -95,14 +94,17 @@
 \bibcite{dctcp}{9}
 \bibcite{improving}{10}
 \bibcite{detail}{11}
-\bibcite{click}{12}
-\bibcite{mptcp}{13}
-\bibcite{cong}{14}
-\bibcite{ns3}{15}
-\bibcite{traffic}{16}
-\bibcite{mptcp_linux}{17}
-\bibcite{rtt}{18}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Flow completion time of Short message traffic with Background traffic}}{8}}
-\newlabel{fig:short_query}{{10}{8}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}あとがき}{8}}
-\newlabel{sec:conclude}{{6}{8}}
+\bibcite{p_fab}{12}
+\bibcite{click}{13}
+\bibcite{mptcp}{14}
+\bibcite{cong}{15}
+\bibcite{ns3}{16}
+\bibcite{traffic}{17}
+\bibcite{mptcp_linux}{18}
+\bibcite{rtt}{19}
+\bibcite{mptcp_ana}{20}
+\bibcite{flexible}{21}
+\bibcite{synchro}{22}
+\bibcite{balia}{23}
+\@writefile{toc}{\contentsline {section}{\numberline {5}あとがき}{8}}
+\newlabel{sec:conclude}{{5}{8}}

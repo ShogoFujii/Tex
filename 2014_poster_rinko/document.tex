@@ -12,9 +12,9 @@
 \usepackage{latexsym}
 \usepackage{url}
 \usepackage{cite}
-\usepackage[top=30truemm,bottom=30truemm,left=25truemm,right=25truemm]{geometry}
+\usepackage[top=30truemm,bottom=30truemm,left=16truemm,right=16truemm]{geometry}
 %
-\setlength{\textwidth}{\fullwidth}
+\setlength{\textwidth}{178truemm}
 \setlength{\textheight}{39\baselineskip}
 \addtolength{\textheight}{\topskip}
 \setlength{\voffset}{-0.5in}
@@ -33,8 +33,9 @@
 融合情報学輪講資料\hspace{\fill}2014/07/25
 \end{flushleft}
 \begin{center}
-{\Large  Multipath TCPによるデータセンターネットワークの改善  \\
-Improving the datacenter network with Multipath TCP}
+{\Large  Multipath TCP適用時のデータセンターネットワークでのショートフローに対する改善  \\
+Improving the effect of the short flows in the data center network with
+Multipath TCP}
 \end{center}
 \begin{flushleft}
 工学系研究科 電気系工学専攻 関谷研究室\hspace{\fill}修士課程2年 37-136482 藤居 翔吾
@@ -47,15 +48,24 @@ Improving the datacenter network with Multipath TCP}
 \begin{itshape}
 Abstract-
 \end{itshape}
+
 As increasing the number of servers in a datacenter, the effective network
 topology for utilization of massive computer clusters has been studied.
 Recently, using MPTCP for the beneficial use has been tackled this problem.
 As another solution, distributed processing system enabled to handle big data.
-Today's the technique of distributed processing is that massive workers process data followed by the query from the master nodes.
-As the result, a large quantity of short flow is generated in a datacenter network.
+Today's the technique of distributed processing is that massive workers
+process data followed by the query from the master nodes.
+As the result, a large quantity of short flow is generated in a datacenter
+network.
 MPTCP can achieve the effective consumptions of the resources with multipath,
-but a researcher reported MPTCP causes the delay of flow completion for short flows.
-In this paper, we verified the utility of the datacenter network with MPTCP, and consider the effects of MPTCP by flow size.
+but a researcher reported MPTCP causes the delay of flow completion for short
+flows.
+In this paper, I verified the MPTCP's effects for short flows in the datacenter
+network with the traffic of distributed processing service.
+There are two negative factors, bottleneck at aggregation switch and multiplexed
+flow patterns in one host, and I clarified short flow delays arise under what
+circumstances.
+
 
 \vspace{0.5cm}
 \begin{itshape}
@@ -69,22 +79,22 @@ network\end{bfseries}
 \label{sec:intro}
 
 多様な端末がネットワークに接続できるようになり, 様々な端末から大量かつ多種多様なデータの取得が可能となった.
-特にデータ量の増加傾向は顕著で, 18$\sim$24ヶ月単位で総データ容量が2倍になるという予測がされている~\cite{IBM_rep}.
+特にトラフィックデータ量の増加傾向は顕著で, 18$\sim$24ヶ月単位で総データ容量が2倍になるという予測がされている~\cite{IBM_rep}.
 またFacebookでは, 300ペタバイト以上のデータ量を保有しており, 1日あたりに1ペタバイトのデータを解析している~\cite{presto}.
-このように近年では, クラウドによるビッグデータの活用が着目され, ウェブ検索, SNSなど,
+このように近年では, クラウドによるビッグデータの活用が着目され, ウェブ検索エンジンやSNS(Social Networking Service)など,
 リアルタイムに近いレスポンスを返すような場面において使われ始めている.
-そのようなクラウドサービスには近年要求が高まってきており, Amazonでは100[ms]の遅延により売り上げが1\%下がる,
-といった報告~\cite{amazon}があるように, 遅延の影響は深刻な問題となっている.
+そのようなクラウドサービスには近年, より良いユーザーエクスペリエンスの要求が高まってきており,
+Amazonでは100[ms]の遅延により売り上げが1\%下がる, といった報告~\cite{amazon}があるように, レスポンス遅延の影響は深刻な問題となっている.
 そのため, 大規模データをより高速に解析することが求められており, データセンターではサーバの運用台数が増加の一途をたどっている.
 しかし, 大量の計算機資源から最大限の性能を引き出すためには,
 従来の仕組みではデータセンター内トラフィックに対してトラフィックが集中する問題に対応できないため,
 計算機資源を有効活用するための研究が盛んに行われている\cite{mapreduce, dryad, fattree, bcube, vl2,
-dctcp, improving, detail}.
+dctcp, improving, detail, p_fab}.
 そのようなスケーラビリティ拡大には, ネットワークトポロジー, アプリケーション, プロトコルに対するアプローチがある.
 
 ネットワークトポロジーを改良するアプローチでは, 従来の単純な階層構造では,
 データセンター内で発生するトラフィックに対して帯域が最大限割り当てられない~\cite{fattree}.
-そのため, 近年ではそのようなトラフィックに対して帯域を有効利用するトポロジーが提案されている.
+そのため, 近年ではそのようなトラフィックに対してスイッチを多段に構成することで帯域を有効利用するトポロジーが提案されている.
 
 大量のデータの処理速度を改良するアプローチでは,
 分散処理のためにpartition-aggregate計算モデルが提案されている.
@@ -97,11 +107,12 @@ MapReduce~\cite{mapreduce}, Dryad~\cite{dryad}等の分散処理フレームワ�
 MPTCPを用いることにより, 複数の経路を同時に利用し, スループットを向上させることが期待されている.
 
 しかし, 分散処理フレームワークを用いることで, フローサイズの小さい大量のQueryが発生し, MPTCPは,
-フローサイズの小さいトラフィックに対しては, TCPよりも性能が劣化する問題が報告された~\cite{improving}.
-このような背景から, 大規模データセンターネットワークへのMPTCP適用時の問題点を把握するために,
-フローサイズの小さいトラフィックに対する性能を検証し,
+フローサイズの小さいトラフィック(ショートフロー)に対しては, TCPよりも性能が劣化する問題が報告された~\cite{improving}.
+
+このような背景から, 大規模データセンターネットワークへのMPTCP適用時のショートフロー遅延の問題は並列分散処理アプリケーションの性能の面で深刻な問題である.
+そこで本論文では, データセンターネットワークにおけるショートフローに対するMPTCPの影響を検証し,
 その原因を分析する.
-特に, ns-3シミュレーションを用いたトラフィック解析結果を示し, TCP適用時との比較を行う.
+特に, ns-3シミュレーションを用いたトラフィック解析結果を示し, どのような状況でショートフローが遅延するのかその要因を示す.
 
 % 本稿では, \ref{sec:related}章でMPTCPによるデータセンターネットワークモデルに関する先行研究を示し,
 % \ref{sec:mptcp}章ではMPTCPの詳細を述べる.
@@ -117,12 +128,17 @@ MPTCPを用いることにより, 複数の経路を同時に利用し, スル�
 
 2010年にAlizadehらによって, データセンターネットワーク特有のトラフィックパターンに特化して,
 パラメータを決定するアルゴリズムが提案された~\cite{dctcp}.
-データセンタートラフィックの引き起こす問題点として, キューの生成による遅延, キュー溢れによるパケットロス,
+データセンター特有のバースト性のあるトラフィックが引き起こす問題点として, キューの生成によるキューイング遅延, キュー溢れによるパケットロス,
 スイッチのバッファに掛かる負荷がある.
 これらの問題に対し, キューの蓄積を制御するためのバッファサイズをアルゴリズムから動的に設定することで,
 大部分のキューの伝送時間を短縮することを可能にした.
+これらの問題に対し, 経由するスイッチにおいて, ECN(Explicit Congestion Notification)によってエンドホストに輻輳を通知し,
+キューの大部分が占有される前にウィンドウサイズを動的に変化させ, キューサイズを小さく保つアルゴリズムによって,
+大部分のキューの伝送時間を短縮することを可能にした.
 しかし, 大規模計算資源を想定したトポロジーにおける検証がされておらず, また各ネットワークデバイスに細かなチューニングを必要とするため,
 大規模データセンターでは運用面での問題がある.
+さらに, サイズの大きいフローの割合の大きいトラフィックの中では, その影響によりウィンドウサイズを小さくする制御が働くため,
+サイズの小さいフローの完結時間への効果が小さい, と報告されている~\cite{p_fab}.
 
 2011年にCostinらによって, MPTCPを用いたデータセンターネットワークモデルが提案された~\cite{improving}.
 近年の大規模計算資源を有効活用するために提案されたネットワークトポロジーでは,
@@ -143,7 +159,7 @@ MPTCPを用い複数経路を同時に利用する事で, 耐障害性を保ち�
 \begin{itemize}
   \item 大規模計算機を有効活用するトポロジーの利用
   \item 分散処理の際に発生する大量のサイズの小さいフローの送信時間の短縮
-  \item 特殊な実装, デバイスを用いず, シームレスな運用の実現
+  \item 特殊な実装やデバイスを用いず, シームレスな運用の実現
 \end{itemize}
 
 \section{データセンターネットワーク}
@@ -160,8 +176,9 @@ MPTCPは, 一つの経路でデータ転送するTCPを拡張し, 複数のイ�
 このように, アプリケーション層より下のレイヤーのみで複数の経路を使ってデータ転送を行うため,
 アプリケーション側がMPTCPでの通信を意識することなくデータ転送ができる.
 
-MPTCPでは, サブフローが, それぞれのシーケンス領域を持ち, 経路状態に合わせて輻輳制御をする~\cite{cong}.
-輻輳制御には, TCPと同様にAIMD(additive-increase and
+MPTCPでは, サブフローが, それぞれのシーケンス領域を持ち, 経路状態に合わせて輻輳制御をするCoupled Congestion Control
+Algorithmがある~\cite{cong}.
+このアルゴリズムには, TCPと同様にAIMD(additive-increase and
 multiplicative-decrease)による輻輳制御がサブフロー単位で行われる.
 以下にAIMDアルゴリズムを示す.
 
@@ -187,7 +204,7 @@ multiplicative-decrease)による輻輳制御がサブフロー単位で行わ�
 MPTCPでの輻輳制御には二つの性質ある.
 一つは, サブフローのウィンドウサイズは, 全てのウィンドウサイズの大きさに依存するということである.
 これにより, 混雑したサブリンクにおいては, ウィンドウサイズが抑えられ, ロードバランスができる.
-二つ目は,MPTCPのアルゴリズムによって, TCPでの輻輳制御よりも悪化する事を回避している事である.
+二つ目は, MPTCPのアルゴリズムによって, TCPでの輻輳制御よりも悪化する事を回避している事である.
 しかし, もし複数のサブフローがそれぞれ混雑のないサブリンクを利用する場合, いずれかのコネクションが帯域を占有する可能性がある.
 
 \subsection{FatTreeトポロジーとMPTCPによるデータセンターモデル}
@@ -250,15 +267,16 @@ coreスイッチに接続するといったように, 階層的にトポロジ�
 \subsection{データセンターにおけるトラフィックシナリオ}
 \label{sec:traffic_scenario}
 大量の計算機資源を有効活用するためには,
-分散処理フレームワークを用い, 一般的に図\ref{fig:part_aggr}に示すようにpartition-aggregate構造をとる.
-分散処理フレームワークでは, 多数の処理ノードと分散処理の制御をする管理ノードから構成されており, 管理ノードからQueryが発行され, 分散処理がそれを受け取り,レスポンスを返す.
+並列分散処理フレームワークを用いられ, 一般的に図\ref{fig:part_aggr}に示すようにpartition-aggregate構造をとる.
+並列分散処理フレームワークでは, 多数の処理ノードと分散処理の制御をする管理ノードから構成されており, 管理ノードからQueryが発行され,
+分散処理がそれを受け取り,レスポンスを返す.
 このとき, トラフィックパターンが  (1){\it Query traffic}, (2){\it Short message
 traffic}, (3){\it Backgroung traffic}の3つに分類される~\cite{dctcp}.
 
 {\bf Query traffic. }Query trafficとは, 大規模計算処理を分割して並列処理する際に,
 aggregatorノードから処理ノードへ具体的な処理を割り当てるためのトラフィックである.
 Query trafficの特徴は, 非常に小さいフローサイズ(2KB$\sim$20KB)で、処理全体の遅延に非常に強く影響を及ぼす事である.
-また分散処理システムの構成上, Query trafficはms$\sim \mu$s単位でQueryが生成され,
+また並列分散処理システムの構成上, Query trafficはms$\sim \mu$s単位でQueryが生成され,
 バースト性を持つと言える~\cite{dctcp}.
 
 {\bf Short message traffic. } Short message trafficとは,
@@ -288,56 +306,237 @@ Backgroung trafficの特徴は,フローサイズが1MB$\sim$50MBと大きいこ
     \end{center}
 \end{figure}
 
-\section{再現シミュレーション実験}
-\label{sec:reproduction}
-この章では,
-Raiciuらによって示したFatTree-MPTCPネットワークモデルでのフローサイズの小さいトラフィックに対する性能評価シミュレーションを再現し,
-解析を行った結果を示す.
+\subsection{スイッチ}
+\label{sec:switch}
+現在用いられている汎用的なスイッチ機器では複数のフローを多重に扱うための共有メモリを持つ.
+そして共有メモリプールからMMU(Memory Management Unit)によって各インターフェースが利用できるメモリ量を動的に割り当てる事で,
+複数の通信を公平に処理する事を目指す.
+しかし, 比較的安価なスイッチでは制御できるメモリ量が制限されているため,
+様々な性能障害を引き起こす~\cite{flexible}.
+
+\subsubsection{Incast}
+\label{subsec:incast}
+図\ref{fig:impair}(a)に示すように, 短期間に一つのインターフェースへとフローが集中した場合, 用意されているバッファを使い果たし,
+最悪の場合パケットロスを引き起こす.
+これは, \ref{sec:traffic_scenario}小節で示したpartition-aggregate構造によるもので,
+リクエストを受けた処理ノードが同期して一斉にレスポンスを返すことにより,
+そのレスポンスを集約して受け取るアグリゲートホストが接続しているスイッチでのポートのキューサイズが大きくなる.
+こうした問題に対して, アプリケーションレベルにおいては二つのアプローチがある.
+一つは, レスポンスのサイズを意図的に小さくし, スイッチバッファの圧迫を抑えることである.
+もう一つは, それぞれのリクエストにジッタを混ぜる事で, レスポンスを同期させないことである~\cite{synchro}.
+さらに, パケットロスを生じた際へのアプローチとしては, $RTO_{min}$を小さくする事でパケットロスの影響を抑える事ができる.
+
+\subsubsection{Queue buildup}
+\label{subsec:queue}
+\ref{sec:traffic_scenario}小節で示したように, 並列分散処理のレスポンスには直接影響しないBackgroung trafficは,
+スイッチバッファにパケットロスを引き起こすほどの影響を及ぼし, そのポートがボトルネックとなる可能性がある.
+図\ref{fig:impair}(b)に示すように, Backgroung trafficとQuery trafficが同じポートを利用する場合,
+大きく二つの性能障害を引き起こす.
+一つは, 上記に示したIncast問題によるパケットロスである.
+もう一つは, サイズの大きいフローによるショートフローのキューイング遅延が生じる, Queue buildup問題である.
+この障害は, Incast問題とは無関係であり, パケットロスは生じないため$RTO_{min}$による改善はできない.
+さらに, 多数の同期されたQuery trafficも必要としない.
+そのため, キューイング遅延の問題に対する唯一の解決策は, キューサイズをなるべく小さく保つことにより, キューに溜まったパケットを素早く排出する事である.
+
+\begin{figure}[h]
+    \begin{center}
+    \includegraphics[autoebb, width=210pt]{./img/impairments.pdf}
+    \caption{Two ways in which flows interact on a multi-ported switch
+    resulting in performance problems.}
+    \label{fig:impair}
+    \end{center}
+\end{figure}
+
+% \section{再現シミュレーション実験}
+% \label{sec:reproduction}
+% この章では,
+% Raiciuらによって示したFatTree-MPTCPネットワークモデルでのフローサイズの小さいトラフィックに対する性能評価シミュレーションを再現し,
+% 解析を行った結果を示す.
+%
+% \subsection{再現シミュレーション実験環境}
+% Raiciuらは~\cite{improving}において, 各プロトコルがフローサイズの小さなトラフィックに対して及ぼす影響の評価を行い,
+% フローサイズの小さいトラフィックに関しては, MPTCPによりフロー完結時間を遅延させることを示した.
+% そのときのシミュレーション環境は, 以下の通りである.
+% ネットワークトポロジーには, 4:1にオーバーサブスクリプションされたFatTreeを用いている.
+% ベンチマークトラフィックについては, ホスト同士の1対1通信を用いている.
+% 全てのホストのうち, 33\%をTCPまたはMPTCPにより継続してデータ転送 (Background traffic)を行う.
+% 残りのhostを使って, TCPによる70Kbyteのデータ転送(Short flow)を毎200[ms]のポアソン生起させ,
+% 転送完了までにがかかった時間FCT(Flow Completion Time)を計測している.
+%
+% 今回の再現実験にはns-3 Direct Code Execution~\cite{ns3}を用い, MPTCPは, Linux
+% カーネルソースを用いた~\cite{mptcp_linux}.
+% 図\ref{fig:fattree_rep}に, シミュレーションで用いたFatTree(k=2)トポロジーを示す.
+% このトポロジーでの物理パスでは, 一つのサブフローが1本の物理パスを占有するように, 設計している.
+% すなわち, 4つのサブフローを使う場合, ホストの4インターフェースに対しそれぞれ4つIPアドレスが割り当てられる.
+% また, Host-Edge部分には, IPアドレスの数だけインターフェースを用意し, Aggregation-Edge部分も,
+% それに従いインターフェースを追加する.
+% さらにルーティングに関しては, Core1$\sim$Core4に分散するようにルーティングテーブルを設定した.
+%
+% 表\ref{table:testbed}に再現シミュレーション環境に対する各パラメータをまとめる.
+% \begin{table}[h]
+% \begin{center}
+% \footnotesize
+% \begin{tabular}{c|c}
+% \hline
+% Parameter & Value \\ \hline \hline
+% Nodes & 16 \\
+% MPTCP & v0.88 \\
+% Link core-aggr & 400Mbps \\
+% Link aggr-edge & 200Mbps \\
+% Link edge-host & 100Mbps \\
+% RTT & 0.5ms\\
+% Receive buffer size & 100KB \\
+% \hline
+% \end{tabular}
+% \caption{Testbed on network simulation}
+% \label{table:testbed}
+% \end{center}
+% \end{table}
+%
+% \begin{figure}[h]
+%     \begin{center}
+%     \includegraphics[autoebb, width=210pt]{./img/fattree_rep.pdf}
+%     \caption{Network topology on reproducing simulation}
+%     \label{fig:fattree_rep}
+%     \end{center}
+% \end{figure}
+%
+% \subsubsection{設定パラメータに対する有効性の検証}
+% 伝搬遅延についてはRTT(Round Trip Time)として, 0.5[ms]に設定した.
+% これは, 一般的なデータセンター内のRTTが1[ms]以下であるためである~\cite{rtt}.
+%
+% バッファサイズについては, 以下の帯域幅遅延積(BDP)の式から, 400Mbps$\times$4を最大限利用できるだけの値を設定した.
+% \vspace{-2mm}
+% \begin{eqnarray}
+% BDP[{\rm byte}] = 帯域幅[{\rm bps}] \times RTT \div 8
+% \label{cong}
+% \vspace{-2mm}
+% \end{eqnarray}
+%
+% 各帯域については, 16のノードを使って輻輳を引き起こす現象を再現するために, 実際のデータセンターのような広帯域のネットワークと比べ,
+% 狭い帯域を設定した.
+%
+% \subsection{再現結果}
+% 図\ref{fig:short_flow_rep}, 表\ref{table:short_flow_rep}に, 上記の実験環境で再現した結果を示す.
+% 再現結果から, フローの様子を完結時間別に4パターンに分類することができることが分かった.
+% 表\ref{table:flow_pattern}にそのフローパターンの定義を示す.
+%
+%
+% 今回の再現実験において, TCPとMPTCPでフロー完結時間に差を生じた要因は, パケットロスが発生する割合にある.
+% 図\ref{fig:cdf}に再現実験でのフロー完結時間ごとの累積確率分布を示す.
+% パケットロスを生じないフローに関しては, 両者に性能差を感じなかったが, この図から, MPTCPを用いた方が,
+% パケットロスを引き起こし遅延を生じさせる割合が大きいということが分かる.
+%
+% このようにMPTCPが帯域を大きく占有することにより他のトラフィックを圧迫することは, MPTCPの輻輳制御によるものだと考えられる.
+% 混雑のない経路でデータ転送する場合, MPTCPでは積極的にウィンドウサイズを増やそうとするため, 他のフローに対し遅延を引き起こしたと推測される.
+%
+% \begin{figure}[h]
+%     \begin{center}
+%     \includegraphics[autoebb, width=210pt]{./img/flow_comp.pdf}
+%     \caption{The result of the reproduction experiment}
+%     \label{fig:short_flow_rep}
+%     \end{center}
+% \end{figure}
+%
+% \begin{figure}[h]
+%     \begin{center}
+%     \includegraphics[autoebb, width=210pt]{./img/cdf_rep.pdf}
+%     \caption{CDF of flow completion time on reproduction experiment}
+%     \label{fig:cdf}
+%     \end{center}
+% \end{figure}
+%
+% \begin{table}[h]
+% \begin{center}
+% \footnotesize
+% \begin{tabular}{c|p{5em}|p{4em}|p{5em}}
+% \hline
+% Protocol & AVG comp time[ms]& Stdev[ms] &
+% $95^{th}$ percentile[ms]\\
+% \hline \hline TCP &\hfil 78.4 &\hfil 122.5 &\hfil 266.7\\
+% MPTCP &\hfil 91 &\hfil 140.6 &\hfil 510.5\\
+% \hline
+% \end{tabular}
+% \caption{Average flow completion time and stdev on reproduction experiment}
+% \label{table:short_flow_rep}
+% \end{center}
+% \end{table}
+%
+% \begin{table}[h]
+% \begin{center}
+% \footnotesize
+% \begin{tabular}{c|c|c}
+% \hline
+% Flow pattern & Comp time[ms] & Packet loss \\ \hline \hline
+% Full window & $\sim$30 & \\
+% Intensive flow & $\sim$60 & \\
+% Delay with loss & 200$\sim$300 & $\surd$\\
+% Extreme delay & 300$\sim$ & $\surd$\\
+% \hline
+% \end{tabular}
+% \caption{Flow pattern classified by completion time}
+% \label{table:flow_pattern}
+% \end{center}
+% \end{table}
+%
+%
+%
+% より詳細なMPTCPの影響を解析するため, 今回用いたFatTreeトポロジーを部分的に抽出したトポロジーを用いたシミュレーション環境により,
+% どういった環境下でMPTCPによる影響を受け遅延が生じるのかを検証した.
+
+\section{検証実験}
+\label{sec:verification}
+これまでの研究において報告されたMPTCPによるショートフロー性能劣化の問題~\cite{improving}を受け, その再現実験を行うことにより,
+原因を解析し, 二つの要因を明らかにした~\cite{mptcp_ana}.
+一つ目は, MPTCPはTCPよりも多くのトラフィックを排出する事で, パケットロスを伴う遅延が生じるということ.
+二つ目は, MPTCPの実装上の問題から, 最大二つの経路しかデータ転送に利用できないということである.
+これらの結果を受けて, MPTCPによるバックグラウンドトラフィックが利用している経路を回避し, 比較的輻輳が起こっていない経路を適切に選ぶ事で,
+ショートフローのフロー完結時間(FCT)が改善できるのではないかと, 仮説を立てた.
+この章では, シミュレーション実験を用いて, その仮説の検証, またMPTCPによるショートフローの遅延がどういった状況で発生するのかを明らかにする.
 
 \subsection{再現シミュレーション実験環境}
-Raiciuらは~\cite{improving}において, 各プロトコルがフローサイズの小さなトラフィックに対して及ぼす影響の評価を行い,
-フローサイズの小さいトラフィックに関しては, MPTCPによりフロー完結時間を遅延させることを示した.
-そのときのシミュレーション環境は, 以下の通りである.
-ネットワークトポロジーには, 4:1にオーバーサブスクリプションされたFatTreeを用いている.
-ベンチマークトラフィックについては, ホスト同士の1対1通信を用いている.
-全てのホストのうち, 33\%をTCPまたはMPTCPにより継続してデータ転送 (Back-ground traffic)を行う.
-残りのhostを使って, TCPによる70Kbyteのデータ転送をを毎200[ms]のポアソン生起させ, 転送完了までにがかかった時間を計測している.
-
-今回の再現実験にはns-3 Direct Code Execution~\cite{ns3}を用い, MPTCPは, Linux
-カーネルソースを用いた~\cite{mptcp_linux}.
-図\ref{fig:fattree_rep}に, シミュレーションで用いたFatTree(k=2)トポロジーを示す.
-このトロポロジーでの物理パスでは, 一つのサブフローが1本の物理パスを占有するように, 設計している.
+ネットワークトポロジーには,
+図\ref{fig:fattree_ver}のようなFatTreeを部分的に抽出した2:1にオーバーサブスクリプションされたトポロジーを用いる.
+このトポロジーでの物理パスでは, 一つのサブフローが1本の物理パスを占有するように, 設計している.
 すなわち, 4つのサブフローを使う場合, ホストの4インターフェースに対しそれぞれ4つIPアドレスが割り当てられる.
 また, Host-Edge部分には, IPアドレスの数だけインターフェースを用意し, Aggregation-Edge部分も,
 それに従いインターフェースを追加する.
 さらにルーティングに関しては, Core1$\sim$Core4に分散するようにルーティングテーブルを設定した.
+ベンチマークトラフィックについては, 二つのペアに対してホスト同士の1対1通信を用いている.
+一方のペアに対しては, MPTCPにより継続してデータ転送 (バックグラウンドトラフィック)を行う.
+他方のペアに対しては, TCPによる2$\sim$70Kbyteのデータ転送(ショートフロー)を毎200[ms]のポアソン生起させ,
+転送完了までにがかかった時間FCT(Flow Completion Time)を計測している.
 
-表\ref{table:testbed}に再現シミュレーション環境に対する各パラメータをまとめる.
+今回の再現実験にはns-3 Direct Code Execution~\cite{ns3}を用い, MPTCPは, Linux
+カーネルソースを用いた~\cite{mptcp_linux}.
+図\ref{fig:fattree_rep}に, シミュレーションで用いたFatTree(k=2)トポロジーを示す.
+
+
+表\ref{table:testbed_ver}に再現シミュレーション環境に対する各パラメータをまとめる.
 \begin{table}[h]
 \begin{center}
 \footnotesize
 \begin{tabular}{c|c}
 \hline
 Parameter & Value \\ \hline \hline
-Nodes & 16 \\
-MPTCP & v0.86 \\
-Link core-aggr & 400Mbps \\
+Nodes & 4 \\
+MPTCP & v0.88 \\
 Link aggr-edge & 200Mbps \\
 Link edge-host & 100Mbps \\
 RTT & 0.5ms\\
-Window size & 100KB \\
+Receive buffer size & 50KB \\
 \hline
 \end{tabular}
-\caption{Testbed on network simulation}
-\label{table:testbed}
+\caption{Testbed on verificating simulation}
+\label{table:testbed_ver}
 \end{center}
 \end{table}
 
 \begin{figure}[h]
     \begin{center}
-    \includegraphics[autoebb, width=210pt]{./img/fattree_rep.pdf}
-    \caption{Network topology on reproducing simulation}
-    \label{fig:fattree_rep}
+    \includegraphics[autoebb, width=210pt]{./img/fattree_part.pdf}
+    \caption{Network topology on verificating simulation}
+    \label{fig:fattree_ver}
     \end{center}
 \end{figure}
 
@@ -345,7 +544,7 @@ Window size & 100KB \\
 伝搬遅延についてはRTT(Round Trip Time)として, 0.5[ms]に設定した.
 これは, 一般的なデータセンター内のRTTが1[ms]以下であるためである~\cite{rtt}.
 
-ウィンドウサイズについては, 以下の帯域幅遅延積(BDP)の式から, 400Mbpsを最大限利用できるだけの値を設定した.
+バッファサイズについては, 以下の帯域幅遅延積(BDP)の式から, 200Mbps$\times$4を最大限利用できるだけの値を設定した.
 \vspace{-2mm}
 \begin{eqnarray}
 BDP[{\rm byte}] = 帯域幅[{\rm bps}] \times RTT \div 8
@@ -353,195 +552,110 @@ BDP[{\rm byte}] = 帯域幅[{\rm bps}] \times RTT \div 8
 \vspace{-2mm}
 \end{eqnarray}
 
-各帯域については, 16のノードを使って輻輳を引き起こす現象を再現するために, 実際のデータセンターのような広帯域のネットワークと比べ,
+各帯域については, 4のノードを使って輻輳を引き起こす現象を再現するために, 実際のデータセンターのような広帯域のネットワークと比べ,
 狭い帯域を設定した.
 
-\subsection{再現結果}
-図\ref{fig:short_flow_rep}, 表\ref{table:short_flow_rep}に, 上記の実験環境で再現した結果を示す.
-再現結果から, フローの様子を完結時間別に4パターンに分類することができることが分かった.
-表\ref{table:flow_pattern}にそのフローパターンの定義を示す.
+\subsection{検証結果}
+図\ref{fig:improve}に上記の実験環境での結果として, 70KBのショートフローのFCTとそれぞれの経路の利用率を示す.
+この結果から, background trafficよるリンク利用率の高いpath1, path2において, FCTの分散が大きくなっている事が分かる.
+これは, 大部分のフローは遅延が生じる事なく完結できるが, 遅延が生じる割合, またその遅延量が大きくなることを示している.
+実際に, 図\ref{fig:95percentile}においてはフローサイズを変え, FCTの大きかった下位5\%に着目したグラフであるが,
+利用率の大きいpath1, path2と比較し, path3, path4におけるショートフローのFCTは, 最もサイズの小さい2[kb]フローにおいても10[ms]程度の差があった.
+
+また, 図\ref{fig:inter-flow}では平均200[ms]でポアソン生起するフローの発生間隔と遅延が生じるフローの関係を示している.
+この結果から, フローの発生間隔が短く, 複数のフローが同時刻に混在する状況において, 遅延が生じる事が分かる.
+% このことは図\ref{}のフローの生起間隔を一定値として変化させた時の70[kb]FCTでも明らかである.
+
+これらの事から, 遅延を引き起こす要素としては, 「リンク利用率」, 「フロー発生間隔」があると考えられ, それぞれ, Queue buildup,
+Incastを引き起こす要因となる.
 
 \begin{figure}[h]
     \begin{center}
-    \includegraphics[autoebb, width=210pt]{./img/flow_comp.pdf}
-    \caption{The result of the reproduction experiment}
-    \label{fig:short_flow_rep}
+    \includegraphics[autoebb, width=210pt]{./img/70kb_fix.pdf}
+    \caption{Flow completion time and link utilization for 70kb benchmark
+    traffic}
+    \label{fig:improve}
     \end{center}
 \end{figure}
 
-\begin{table}[h]
-\begin{center}
-\footnotesize
-\begin{tabular}{c|p{5em}|p{4em}|p{5em}}
-\hline
-Protocol & AVG comp time[ms]& Stdev[ms] &
-$95^{th}$ percentile[ms]\\
-\hline \hline TCP &\hfil 78.4 &\hfil 122.5 &\hfil 266.7\\
-MPTCP &\hfil 91 &\hfil 140.6 &\hfil 510.5\\
-\hline
-\end{tabular}
-\caption{Average flow completion time and stdev on reproduction experiment}
-\label{table:short_flow_rep}
-\end{center}
-\end{table}
+\begin{figure}[h]
+    \begin{center}
+    \includegraphics[autoebb, width=210pt]{./img/95percentile.pdf}
+    \caption{95 percentile FCT for 70kb flow}
+    \label{fig:95percentile}
+    \end{center}
+\end{figure}
 
-\begin{table}[h]
-\begin{center}
-\footnotesize
-\begin{tabular}{c|c|c}
-\hline
-Flow pattern & Comp time[ms] & Packet loss \\ \hline \hline
-Full window & $\sim$30 & \\
-Intensive flow & $\sim$60 & \\
-Delay with loss & 200$\sim$300 & $\surd$\\
-Extreme delay & 300$\sim$ & $\surd$\\
-\hline
-\end{tabular}
-\caption{Flow pattern classified by completion time}
-\label{table:flow_pattern}
-\end{center}
-\end{table}
+\begin{figure}[h]
+    \begin{center}
+    \includegraphics[autoebb, width=210pt]{./img/inter_flow.pdf}
+    \caption{Inter-flow with percentile for 70kb benchmark
+    traffic}
+    \label{fig:inter-flow}
+    \end{center}
+\end{figure}
+
+\subsubsection{リンク利用率の影響}
+リンク利用率による遅延の影響がどのように生じているのかを解析するため, 各スイッチでキャプチャしたpcapデータを基にして,
+バックグラウンドトラフィックの有無によるパケット発生間隔の変化の解析を行った.
+pcapデータにはpath1における70kbフローを用いた.
+すなわち, バックグラウンドトラフィック有の場合には, 一つの経路に二つのフローが混在する事になる.
+図\ref{fig:inter-packet}にパケット発生間隔の差分の累積を示す.
+この差分の値が大きければ大きいほど, そのホストにおけるキューイング遅延が大きかった事を示している.
+バックグラウンドトラフィックが流れている時のSenderホスト-Edgeスイッチ間でのパケット発生間隔の変化から,
+Edgeスイッチのキューイング遅延がボトルネックとなっている事が分かり, Queue buildupでの性能障害が起きていることが分かる.
+
+\begin{figure}[h]
+    \begin{center}
+    \includegraphics[autoebb, width=210pt]{./img/inter_packet.pdf}
+    \caption{Inter-flow with/without bankground traffic for 70kb benchmark
+    traffic}
+    \label{fig:inter-packet}
+    \end{center}
+\end{figure}
+
+\subsubsection{フロー発生間隔の影響}
+短いフロー発生間隔におけるフロー多重化による遅延の影響がどのように生じているのかを解析するため, 各スイッチでキャプチャしたpcapデータを基にして,
+よるパケット発生間隔の変化の解析を行った.
+pcapデータには70kbフローのみを用い, フロー発生間隔は50, 200[ms]でそれぞれのFCTを比較した.
+図\ref{fig:detail}にフローが完結するまでの通信の様子を示す.
+発生間隔200[ms]のフローでは, 滞りなくデータ転送を130ms程度で完了し, 後続のフローとは競合しないことが分かる.
+発生間隔50[ms]のフローでは, 段階的にデータを送り, 待ちが発生している様子が分かるが, これは, 待ちの間に他のフローの通信を行っているからであり,
+インターフェース単位で見ると常に一定したデータを送信している.
+そのため, 各フロー毎の完結時間の遅延が生じる.
+
+\begin{figure}[h]
+    \begin{center}
+    \includegraphics[autoebb, width=210pt]{./img/detail.pdf}
+    \caption{Detail receiving 70kb flow}
+    \label{fig:detail}
+    \end{center}
+\end{figure}
+
 
 \subsection{考察}
-表\ref{table:flow_pattern}に示した各フローパターンについて, それぞれの特性を分析する.
+\label{sec:analysis}
+これらの解析結果から, \ref{sec:switch}小節にて示した二つの機能障害が引き起こる要因について述べ, 今後の改善手法の検討を行う.\\
+{\bf Queue buildup: }フローサイズが大きく,
+長時間データを通信し続けるバックグラウンドトラフィックの影響によって中継するスイッチのキューサイズは大きく保たれてしまい,
+そのポートにおけるキューイング遅延が生じる.
+その中でフローサイズが小さく, 本質的には短時間で完結できるフローが, 同じポートを使って通信する事で,
+キューイング遅延やキュー溢れによるパケットロスの影響を受け, フロー完結時間が大きくなる.
+そうした遅延の影響が引き起こる為には, 同時に多数のショートフローは必要でなく, バックグラウンドトラフィックがキューを圧迫している状況で,
+他のフローが流入する事により生じる.\\
+{\bf Incast: }サイズの小さいフローが多数生成され, それらのフローが短期間にアグリゲートホストに流入しようし,
+アグリゲートホストが接続されているスイッチのポートにトラフィックが集中する事で, バッファが圧迫される事によりキューイング遅延, パケットロスが生じる結果,
+それぞれのフローの完結時間が大きくなる.
+そうした遅延の影響が引き起こる為には, 各ホストにおけるショートフローの発生間隔が小さい時に, 複数のフローが同時刻に通信を行うことにより生じる.
 
-\subsubsection{パケットロスが発生しないフローパターン}
-図\ref{fig:full_intensive}にFull windowとIntensive flowのデータ転送の様子を示す.
-
-Full windowでは, TCPコネクション確立後, サーバーがすぐに最大ウィンドウサイズ分だけパケットを送り,
-クライアントからのACKが返ってくると, 随時次のパケットを送っていた.
-これは, 経路に輻輳がなく, 多くのウィンドウを利用できたということであり, 30[ms]以下でデータ転送を完了した.
-
-一方, Intensive flowでは, サーバーが最大ウィンドウサイズに満たない量のパケットを送り,
-クライアントからまとめて送られてくるACKを受け取った後, 集約してパケットを送っていた.
-その結果, コネクションの切断時に遅延が起こり60[ms]程度転送時間がかかった.
-
-\subsubsection{パケットロスが生じたフローパターン}
-図\ref{fig:delay_loss}にDelay with lossとExtreme delayのデータ転送の様子を示す.
-いずれのフローパターンもデータ転送中にパケットロスが発生し, 再送処理, 重複ACK確認応答を行った.
-パケットロスが起きた原因は, 短時間にフローサイズの小さいトラフィックが中継ルータを集中したためである.
-実際, 200[ms]のポアソン生起のうち, 数10ms単位の短い期間でトラフィックが発生したとき, 中継ルータにおいてパケットロスが生じた.
-
-Delay with lossでは, TCPコネクション確立後に数パケットのデータ転送を行い, パケットロスによるタイムアウトを生じた.
-その後, 再送処理を経て, Maximum Segment Size (MSS)である1460[byte]でパケットを伝送した.
-
-一方, Extreme delayでは, TCPコネクション確立直後にパケットロスによるタイムアウトを生じた.
-その後も, パケットロスは生じないものの, 400[ms]頃まで伝搬遅延が生じていた.
-また, 図\ref{fig:delay_loss}における二つのグラフの傾きは, セグメントサイズ最小値の586[byte]に設定され,
-転送速度が上がらなかったことを表している.
-これは, 中継するルータにおいてQoE制御による帯域制限が発生したことを示している.
-実際, 同時刻に流れていたBackground trafficのスループットには変化がなく, QoE制御のrate controlによりBack-ground
-trafficのデータ転送が優先され, ベンチマークトラフィックにはウィンドウサイズが制限されたと考えられる.
-
-\begin{figure}[h]
-    \begin{center}
-    \includegraphics[autoebb, width=210pt]{./img/full_intensive.pdf}
-    \caption{Comparison between Full window and Intensive flow}
-    \label{fig:full_intensive}
-    \end{center}
-\end{figure}
-
-\begin{figure}[h]
-    \begin{center}
-    \includegraphics[autoebb, width=210pt]{./img/loss.pdf}
-    \caption{Comparison between Delay with loss and Extreme delay}
-    \label{fig:delay_loss}
-    \end{center}
-\end{figure}
-
-\subsubsection{TCP v.s. MPTCP}
-今回の再現実験において, TCPとMPTCPでフロー完結時間に差を生じた要因は, パケットロスが発生する割合にある.
-図\ref{fig:cdf}に再現実験でのフロー完結時間ごとの累積確率分布を示す.
-パケットロスを生じないフローに関しては, 両者に性能差を感じなかったが, この図から, MPTCPを用いた方が,
-パケットロスを引き起こし遅延を生じさせる割合が大きいということが分かる.
-
-このようにMPTCPが帯域を大きく占有することにより他のトラフィックを圧迫することは, MPTCPの輻輳制御によるものだと考えられる.
-混雑のない経路でデータ転送する場合, MPTCPでは積極的にウィンドウサイズを増やそうとするため, 他のフローに対し遅延を引き起こしたと推測される.
-
-
-\begin{figure}[h]
-    \begin{center}
-    \includegraphics[autoebb, width=210pt]{./img/cdf_rep.pdf}
-    \caption{CDF of flow completion time on reproduction experiment}
-    \label{fig:cdf}
-    \end{center}
-\end{figure}
-
-\section{評価実験と考察}
-\label{sec:evaluation}
-この章では, MPTCPデータセンターネットワークに対して実際のデータセンター環境を想定したシミュレーション実験を行い, その結果について考察する.
-
-\subsection{想定環境}
-今回, データセンター上でpartition-aggregateモデルに従う分散処理を想定する.
-ネットワークトポロジーについては, 前章のFatTreeトポロジーを用い, 一つのPodが管理ノード群として他Podの12ノードに対し,
-処理を指示することを想定する.
-またベンチマークトラフィックについては, \ref{sec:traffic_scenario}節で述べた, 2つのトラフィックパターンについて評価・考察を行う.
-メトリックとして表\ref{metric}を考える.
-\begin{table}[h]
-\begin{center}
-\footnotesize
-\begin{tabular}{c|c}
-\hline
-Traffic patern & Metric \\ \hline \hline
-Query traffic & Comp time[sec] \\
-Short message traffic & Comp time[sec] \\
-\hline
-\end{tabular}
-\caption{Metric of each traffic patern}
-\label{metric}
-\end{center}
-\end{table}
-
-\subsection{シミュレーション結果}
-
-\subsubsection{Query traffic}
-Query trafficに対する評価として, フローサイズは1[KB]$\sim$16[KB]とした,
-12の処理ノードへ平均200[ms]のポアソン生起でトラフィックを発生させ, フロー完結時間を測定した.
-また, Query trafficのみ発生させた場合と, 50\%の処理ノードに対し継続的にデータを送信するトラフィックを, Background
-trafficとして同時に発生させた場合の2パターンについて評価を行った.
-その結果を, 図\ref{fig:pure_query}, \ref{fig:mix_query}に示す.
-なお, エラーバーとして99\%信頼区間を採用した.
-
-この結果から, MPTCPはQuery trafficに対し, 直接性能に影響を及ぼさず, Background
-Trafficによる影響が性能差を生じさせたことが分かる.
-これは, やはりMPTCPがTCPよりも帯域を大きく占有した影響を受けたと考えられる.
-\begin{figure}[h]
- \begin{minipage}{0.49\hsize}
-  \begin{center}
-    \includegraphics[autoebb, width=95pt]{./img/pure_query.pdf}
-    \caption{Flow completion time of Query traffic without Background traffic}
-    \label{fig:pure_query}
-    \end{center}
- \end{minipage}
- \begin{minipage}{0.49\hsize}
-  \begin{center}
-    \includegraphics[autoebb, width=95pt]{./img/mix_query.pdf}
-    \caption{Flow completion time of Query
-    traffic with Background traffic}
-    \label{fig:mix_query}
-    \end{center}
- \end{minipage}
-\end{figure}
-
-\subsubsection{Short message traffic}
-Short message trafficに対する評価として, フローサイズは50[KB]$\sim$1[MB]とした.
-50\%の処理ノードに対し継続的にデータを送信するトラフィックを, Background trafficとして同時に発生させた状態で,
-同時に12の処理ノードへ平均500[ms]のポアソン生起でトラフィックを発生させ, フロー完結時間を測定した.
-その結果を, 図\ref{fig:short_query}に示す.
-
-この結果から, MPTCPはShort message trafficに対し, フロー完結時間を短縮させたことが分かる.
-これは, 先ほどのQuery trafficよりも大きなサイズのフローを流したので, MPTCPにより複数経路を利用し, TCPよりも短縮したためである.
-実際, フローサイズが小さいと, MPTCPとTCP間でフロー完結時間の差が小さくなっている.
-
-\begin{figure}[h]
-    \begin{center}
-    \includegraphics[autoebb, width=210pt]{./img/mix_short.pdf}
-    \caption{Flow completion time  of Short message traffic with Background
-    traffic}
-    \label{fig:short_query}
-    \end{center}
-\end{figure}
-
+こうした遅延の影響を軽減する為には, 通信を行うスイッチポートのキューサイズを小さく保ち, 通信を行う事が重要である.
+具体的には, 図\ref{fig:improve}に示すように, 同じスイッチでも異なる物理ポートを用いる,
+あるいはRaiciuらが提案しているDual-Homed FatTreeのようなEdgeスイッチを複数設けたトポロジーを用いる事で,
+物理的に異なるスイッチを中継する事でキューが圧迫の問題を回避できると考える~\cite{improving}.
+こうした経路の切り替えを既存の仕組みを用いて実現する事を考えると, MPTCPの持つ輻輳制御アルゴリズムに対して新たなアルゴリズムを提案する必要があると考える.
+実際, MPTCP輻輳制御に関しては議論が行われており, TCPとの親和性と経路状況への対応とのトレードオフの関係性から様々なアルゴリズム提案されている.
+上記のような遅延の問題を解決する為に, MPTCPの輻輳制御を用いて経路を切り替える事を実現するならば,
+従来の制御よりも経路の状況により機敏に対応できる経路切り替えに特化した輻輳制御アルゴリズムが必要であると考えられる.
 
 % \subsubsection{Background traffic}
 % Background
@@ -563,16 +677,14 @@ Short message trafficに対する評価として, フローサイズは50[KB]$\s
 
 \section{あとがき}
 \label{sec:conclude}
-本論文では, MPTCPのフローサイズの小さいトラフィックに対しては,
+本論文では, サイズが大きく長時間通信を行うバックグラウンドトラフィックとサイズが小さくフロー完結時間を短く抑えたいショートフローが混在する状況において, フローサイズの小さいトラフィックに対しては,
 従来のTCPよりもデータ転送に時間がかかるという報告~\cite{improving}を再現し, その原因を分析した.
-その結果, 4つのフローパターンに分類することができ, そのうち, パケットロスが生じるフローがデータ転送時間に影響を及ぼすということを示した.
-特に, MPTCPではフローサイズの大きいトラフィックが小さいトラフィックを圧迫し, パケットロスを引き起こす割合が高く,
-その輻輳制御の公平性に問題が有るということを示した.
-このことから, MPTCPが帯域を占有する問題を解消できれば, 従来のTCPを用いたデータセンターモデルよりも多様なトラフィックに対し性能の向上を期待される.
+その結果, ショートフローが通信で用いるリンクの利用率とフローが発生する間隔の二つの要因がショートフローの遅延に影響を及ぼす事を示した.
+特に, アグリゲートスイッチにおけるキューイングのボトルネックになっており, その問題に対して通信経路を切り替える事によりフロー完結時間を改善した事を示した.
+このことから, キューサイズが大きくなっているスイッチポートを回避するような経路において通信を行う事をMPTCPの輻輳制御によって実現する事で,
+フローサイズの小さいトラフィックの完結時間を短縮化し, 並列分散処理のパフォーマンスの改善が期待される.
 
-今後はトラフィック監視により, パケット衝突を引き起こさないロードバランスにより,
-フローサイズによらずデータ転送高速化技術について検証していく予定である.
-
+今後は実機を用いてキューイングの問題を再現し, それを回避するネットワークトポロジーとMPTCPの輻輳制御の提案を行う.
 %\bibliographystyle{sieicej}
 %\bibliography{myrefs}
 \begin{spacing}{0.7}
@@ -604,6 +716,7 @@ center network." ACM SIGCOMM Computer Communication Review. Vol. 39. No. 4. ACM,
 robustness with multipath TCP." ACM SIGCOMM Computer Communication Review. Vol. 41. No. 4. ACM, 2011.}
 \bibitem{detail}{Zats, David, et al. "DeTail: Reducing the flow completion time
 tail in datacenter networks." ACM SIGCOMM Computer Communication Review 42.4 (2012): 139-150.}
+\bibitem{p_fab}{Alizadeh, Mohammad, et al. "pfabric: Minimal near-optimal datacenter transport." Proceedings of the ACM SIGCOMM 2013 conference on SIGCOMM. ACM, 2013.}
 \bibitem{click}{Kohler, Eddie, et al. "The Click modular router." ACM
 Transactions on Computer Systems (TOCS) 18.3 (2000): 263-297.}
 \bibitem{mptcp}{Ford, Alan, et al. TCP Extensions for Multipath Operation with
@@ -618,6 +731,17 @@ control for multipath transport protocols." draft-ietf-mptcp-congestion-01 (work
 implementation」\url{http://mptcp.info.ucl.ac.be/}}
 \bibitem{rtt}{Vasudevan, Vijay, et al. "Safe and effective fine-grained TCP
 retransmissions for datacenter communication." ACM SIGCOMM Computer Communication Review. Vol. 39. No. 4. ACM, 2009.}
+\bibitem{mptcp_ana}{藤居 翔吾, 田崎 創, 関谷 勇司, "MultiPath TCP
+適用時のデータセンターネットワークでのフローサイズが与える影響に関する一考察", 電子情報通信学会, 信学技法, vol. 113, no. 364,
+IA2013-65, pp. 47-52, 2013.P. Agarwal, B. Kwan, and L. Ashvin. Flexible buffer allocation entities for
+traffic aggregate containment. US Patent 20090207848, August 2009.}
+\bibitem{flexible}{P. Agarwal, B. Kwan, and L. Ashvin. Flexible buffer allocation entities for
+traffic aggregate containment. US Patent 20090207848, August 2009.}
+\bibitem{synchro}{S. Floyd and V. Jacobson. The synchronization of periodic routing messages.
+IEEE/ACM ToN, 1994.}
+\bibitem{balia}{A. Walid, et al. Balanced Linked Adaptation Congestion Control
+Algorithm for MPTCP draft-walid-mptcp-congestion-control-00, 2014.}
+
 \end{thebibliography}
 }
 \end{spacing}
